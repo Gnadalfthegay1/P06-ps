@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -23,12 +24,17 @@ public class ScheduledNotificationReceiver extends BroadcastReceiver {
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("default", "Default Channel", NotificationManager.IMPORTANCE_HIGH);
-
+            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            AudioAttributes att = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+            channel.setSound(alarmSound, att);
             channel.setDescription("This is for default notification");
             notificationManager.createNotificationChannel(channel);
         }
 
-        Intent i = new Intent(context, Add.class);
+        Intent i = new Intent(context, MainActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(context, reqCode, i, PendingIntent.FLAG_CANCEL_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "default");
         String title = intent.getStringExtra("notification");
@@ -37,6 +43,7 @@ public class ScheduledNotificationReceiver extends BroadcastReceiver {
         builder.setLargeIcon(BitmapFactory. decodeResource (context.getResources() , android.R.drawable.btn_star_big_on ));
         builder.setSmallIcon(android.R.drawable.ic_dialog_info);
         builder.setContentIntent(pIntent);
+
         builder.setAutoCancel(true);
 
         Notification n = builder.build();
